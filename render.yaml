@@ -1,7 +1,7 @@
 # render.yaml
 # Final, corrected configuration for Cloudivito on Render.
-# This version fixes the "unknown type 'static'" error by correctly defining
-# the frontend as a 'web' service with a 'static' runtime.
+# This version fixes the "invalid service property: url" error by manually
+# setting the service URLs, which is the correct approach for public-facing addresses.
 
 services:
   # -----------------
@@ -29,18 +29,17 @@ services:
       # --- Generated & Linked Variables ---
       - key: JWT_SECRET
         generateValue: true
+      # FIX: Manually set the frontend's public URL.
+      # Render's fromService does not expose the public URL.
       - key: CLIENT_URL
-        fromService:
-          type: web # The frontend is a 'web' service type
-          name: cloudivito-frontend
-          property: url
+        value: https://cloudivito.onrender.com
 
   # -----------------
   # Frontend Service (React + Vite Static Site)
   # -----------------
-  - type: web # FIX: A static site's type is 'web'.
-    name: cloudivito-frontend
-    runtime: static # FIX: The runtime is specified as 'static'.
+  - type: web
+    name: cloudivito
+    runtime: static
     rootDir: cloudivito-frontend
     branch: main
     buildCommand: npm install && npm run build
@@ -51,8 +50,6 @@ services:
         source: /*
         destination: /index.html
     envVars:
+      # FIX: Manually set the backend's public URL.
       - key: VITE_API_URL
-        fromService:
-          type: web # The backend is a 'web' service type
-          name: cloudivito-backend
-          property: url
+        value: https://cloudivito-backend.onrender.com/api
