@@ -49,7 +49,7 @@ services:
   # -----------------
   # Frontend Service (React + Vite Static Site)
   # -----------------
-  - type: static
+  - type: web
     name: cloudivito
     # The root directory of the frontend code in your repository
     rootDir: cloudivito-frontend
