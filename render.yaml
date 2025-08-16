@@ -1,0 +1,77 @@
+# render.yaml
+# This file defines the infrastructure for the Cloudivito project on Render.
+# It sets up a Node.js backend web service and a React static site frontend.
+
+services:
+  # -----------------
+  # Backend Service (Node.js + Express)
+  # -----------------
+  - type: web
+    name: cloudivito-backend
+    runtime: node
+    # The root directory of the backend code in your repository
+    rootDir: cloudivito-backend
+    # The branch to deploy from
+    branch: main
+    # Build and start commands
+    buildCommand: npm install
+    startCommand: npm start
+    # Use the free instance type to start
+    plan: free
+    # Enable automatic deployments on push to the specified branch
+    autoDeploy: true
+    # Health check to ensure the service is running before marking it as "live"
+    healthCheckPath: /
+    envVars:
+      # --- Critical Secrets ---
+      # These must be set manually in the Render dashboard under your service's "Environment" tab.
+      # 1. Go to your MongoDB Atlas dashboard, get your connection string, and paste it here.
+      - key: MONGO_URI
+        sync: false # Set sync to false to prevent the secret from being stored in the YAML
+      # 2. Get your secret key from your PayMongo dashboard.
+      - key: PAYMONGO_SECRET_KEY
+        sync: false
+      # 3. Create and set a secret for verifying PayMongo webhooks.
+      - key: PAYMONGO_WEBHOOK_SECRET
+        sync: false
+
+      # --- Generated & Linked Variables ---
+      # A secure, automatically generated secret for signing JWTs
+      - key: JWT_SECRET
+        generateValue: true
+      # Automatically gets the URL of the deployed frontend service
+      - key: CLIENT_URL
+        fromService:
+          type: static
+          name: cloudivito-frontend
+          property: url
+
+  # -----------------
+  # Frontend Service (React + Vite Static Site)
+  # -----------------
+  - type: static
+    name: cloudivito
+    # The root directory of the frontend code in your repository
+    rootDir: cloudivito-frontend
+    # The branch to deploy from
+    branch: main
+    # Build command for a Vite project and the output directory
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    # Enable automatic deployments
+    autoDeploy: true
+    # --- Rewrite Rule for Client-Side Routing ---
+    # This ensures that refreshing on any page (e.g., /dashboard) works correctly
+    # by serving the index.html file for all non-file requests.
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      # Passes the backend's URL to the frontend build process.
+      # The VITE_ prefix is required for Vite to expose it to your client-side code.
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: cloudivito-backend
+          property: url
