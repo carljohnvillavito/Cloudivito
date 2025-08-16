@@ -1,6 +1,7 @@
 # render.yaml
-# Corrected configuration for deploying Cloudivito on Render.
-# Defines a Node.js web service (backend) and a static site (frontend).
+# Final, corrected configuration for Cloudivito on Render.
+# This version fixes the "unknown type 'static'" error by correctly defining
+# the frontend as a 'web' service with a 'static' runtime.
 
 services:
   # -----------------
@@ -30,28 +31,28 @@ services:
         generateValue: true
       - key: CLIENT_URL
         fromService:
-          type: static # Correctly points to a static service type
+          type: web # The frontend is a 'web' service type
           name: cloudivito-frontend
-          property: url # This will now be valid
+          property: url
 
   # -----------------
   # Frontend Service (React + Vite Static Site)
   # -----------------
-  - type: static
+  - type: web # FIX: A static site's type is 'web'.
     name: cloudivito-frontend
+    runtime: static # FIX: The runtime is specified as 'static'.
     rootDir: cloudivito-frontend
     branch: main
     buildCommand: npm install && npm run build
-    staticPublishPath: ./dist # This is now valid because type is 'static'
+    staticPublishPath: ./dist
     autoDeploy: true
     routes:
-      # This is now valid because type is 'static'
       - type: rewrite
         source: /*
         destination: /index.html
     envVars:
       - key: VITE_API_URL
         fromService:
-          type: web # Correctly points to a web service type
+          type: web # The backend is a 'web' service type
           name: cloudivito-backend
-          property: host # This will now be valid
+          property: url
