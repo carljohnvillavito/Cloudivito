@@ -16,7 +16,7 @@ app.use(express.json({ extended: false }));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/instances', require('./routes/instances'));
 // Add billing routes later
-// app.use('/api/billing', require('./routes/billing'));
+app.use('/api/billing', require('./routes/billing'));
 
 app.get('/', (req, res) => res.send('Cloudivito API Running'));
 
