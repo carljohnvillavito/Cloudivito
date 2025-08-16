@@ -52,12 +52,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;```
-
-You now have a functional dashboard. Users who are logged in can:
-*   View a list of their instances.
-*   Click a button to open a modal.
-*   Create a new instance, which gets added to the list.
-*   Delete an existing instance.
-
-The next steps would involve implementing the subscription logic and connecting the frontend to the PayMongo API.
+export default Dashboard;
